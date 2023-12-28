@@ -52,7 +52,7 @@ namespace DataAccess.Migrations
                 name: "Flights",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false, defaultValueSql: "NEWID()"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     SeatRows = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SeatColumns = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DepartureDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -71,11 +71,10 @@ namespace DataAccess.Migrations
                 name: "Tickets",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     SeatRow = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SeatColumn = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FlightIdFK = table.Column<int>(type: "int", nullable: false),
+                    FlightIdFK = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Passport = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PricePaid = table.Column<double>(type: "float", nullable: false),
                     Cancelled = table.Column<bool>(type: "bit", nullable: false)

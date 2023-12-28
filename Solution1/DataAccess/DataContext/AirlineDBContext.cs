@@ -24,8 +24,9 @@ namespace DataAccess.DataContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Remove the following line for integer Id type
-            // modelBuilder.Entity<Flight>().Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            modelBuilder.Entity<Flight>().Property(x => x.Id).HasDefaultValueSql("NEWID()");
+            modelBuilder.Entity<Ticket>().Property(x => x.Id).HasDefaultValueSql("NEWID()");
+
         }
 
 

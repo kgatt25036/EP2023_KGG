@@ -24,11 +24,10 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Domain.Models.Flight", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("ArrivalDate")
                         .HasColumnType("datetime2");
@@ -65,17 +64,16 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Domain.Models.Ticket", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<bool>("Cancelled")
                         .HasColumnType("bit");
 
-                    b.Property<int>("FlightIdFK")
-                        .HasColumnType("int");
+                    b.Property<Guid>("FlightIdFK")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Passport")
                         .IsRequired()
@@ -93,6 +91,8 @@ namespace DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FlightIdFK");
 
                     b.ToTable("Tickets");
                 });
@@ -297,6 +297,17 @@ namespace DataAccess.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.Ticket", b =>
+                {
+                    b.HasOne("Domain.Models.Flight", "Flight")
+                        .WithMany()
+                        .HasForeignKey("FlightIdFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Flight");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

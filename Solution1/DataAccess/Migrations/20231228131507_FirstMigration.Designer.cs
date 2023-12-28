@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(AirlineDbContext))]
-    [Migration("20231227153208_FirstMigration")]
+    [Migration("20231228131507_FirstMigration")]
     partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,9 +26,9 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Domain.Models.Flight", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("ArrivalDate")
@@ -66,17 +66,16 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Domain.Models.Ticket", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<bool>("Cancelled")
                         .HasColumnType("bit");
 
-                    b.Property<int>("FlightIdFK")
-                        .HasColumnType("int");
+                    b.Property<Guid>("FlightIdFK")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Passport")
                         .IsRequired()

@@ -10,15 +10,18 @@ namespace Domain.Models
 {
     public class Ticket
     {
+        public Ticket() { } 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public string SeatRow { get; set; }
+        [Required]
         public string SeatColumn { get; set; }
 
         [ForeignKey("Flight")]
-        public int FlightIdFK { get; set; }
+        public Guid FlightIdFK { get; set; }
+        public virtual Flight Flight { get; set; }
         public string Passport { get; set; }
         public double PricePaid { get; set; }
         public bool Cancelled { get; set; }
