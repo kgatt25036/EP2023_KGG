@@ -134,13 +134,13 @@ namespace Presentation.Controllers
     //turn on later[Authorize] // Requires authentication for accessing this controller
     public class TicketsController : Controller
     {
-        private readonly TicketRepository _ticketRepository;
-        private readonly FlightRepository _flightRepository;
+        private readonly TicketRepository ticketRepository;
+        private readonly FlightRepository flightRepository;
 
         public TicketsController(TicketRepository ticketRepository, FlightRepository flightRepository)
         {
-            _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
-            _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
+            this.ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
+            this.flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
         }
 
         // Action to show a list of flights with retail prices
@@ -148,30 +148,33 @@ namespace Presentation.Controllers
         {
             var today = DateTime.Now.Date;
 
-            // Retrieve flights that are not fully booked and have a future departure date
-            var flights = _flightRepository.GetAvailableFlights()
-                .Select(flight => new FlightsViewModels
-                {
-                    Id = flight.Id,
-                    SeatRows = flight.SeatRows,
-                    SeatColumns = flight.SeatColumns,
-                    DepartureDate = flight.DepartureDate,
-                    ArrivalDate = flight.ArrivalDate,
-                    CountryFrom = flight.CountryFrom,
-                    CountryTo = flight.CountryTo,
-                    RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate)
-                })
+            // Retrieve all flights
+            var flights = flightRepository.GetFlights().ToList();
+
+            // Filter flights that are not fully booked and have a future departure date
+            var filteredFlights = flights
+                .Where(f => f.DepartureDate > today && !ticketRepository.GetTickets(f.Id).Any())
                 .ToList();
 
-            return View(flights);
-        }
+            // Map the filtered flights to view models
+            var flightViewModels = filteredFlights.Select(flight => new FlightsViewModels
+            {
+                Id = flight.Id,
+                SeatRows = flight.SeatRows,
+                SeatColumns = flight.SeatColumns,
+                DepartureDate = flight.DepartureDate,
+                ArrivalDate = flight.ArrivalDate,
+                CountryFrom = flight.CountryFrom,
+                CountryTo = flight.CountryTo,
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate)
+            }).ToList();
 
-        // Add other actions and methods as needed
+            return View(flightViewModels);
+        }
 
         // Method to calculate retail price based on flight details (customize as needed)
         private double CalculateRetailPrice(double wholesalePrice, double commissionRate)
         {
-            // Example calculation: retail price as a percentage of wholesale price
             const double RetailPricePercentage = 1.2;
             return wholesalePrice * RetailPricePercentage;
         }

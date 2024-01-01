@@ -14,7 +14,7 @@ namespace DataAccess.Repositories
 
         public FlightRepository(AirlineDbContext airlineDbContext)
         {
-            airlineDbContext = airlineDbContext ?? throw new ArgumentNullException(nameof(airlineDbContext));
+            this.airlineDbContext = airlineDbContext ?? throw new ArgumentNullException(nameof(airlineDbContext));
         }
 
         // Retrieve a specific flight by id

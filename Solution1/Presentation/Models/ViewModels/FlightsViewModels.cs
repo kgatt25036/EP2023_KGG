@@ -4,7 +4,7 @@ namespace Presentation.Models.ViewModels
 {
     public class FlightsViewModels
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } //= Guid.NewGuid();
 
         [Required]
         public string SeatRows { get; set; }
