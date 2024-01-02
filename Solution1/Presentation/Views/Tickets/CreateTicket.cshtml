@@ -1,0 +1,60 @@
+﻿@model Presentation.Models.ViewModels.CreateTicketViewModel
+
+@{
+    ViewData["Title"] = "CreateTicket";
+}
+
+<h1>CreateTicket</h1>
+
+<h4>CreateTicketViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateTicket">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="SeatRow" class="control-label">Seat Row</label>
+                <input asp-for="SeatRow" class="form-control" />
+                <span asp-validation-for="SeatRow" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeatColumn" class="control-label">Seat Column</label>
+                <input asp-for="SeatColumn" class="form-control" />
+                <span asp-validation-for="SeatColumn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FlightIdFK" class="control-label">Flight ID</label>
+                <select name="FlightIdFK" class="form-select">
+                    @foreach(var flight in Model.Flights)
+                    {
+                        <option value="@flight.Id">@flight.Id</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Passport" class="control-label"></label>
+                <input asp-for="Passport" class="form-control" />
+                <span asp-validation-for="Passport" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="PricePaid" /> @Html.DisplayNameFor(model => model.PricePaid)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Cancelled" /> @Html.DisplayNameFor(model => model.Cancelled)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

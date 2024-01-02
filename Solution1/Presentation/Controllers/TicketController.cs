@@ -3,6 +3,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Presentation.Controllers
 {
@@ -134,27 +135,57 @@ namespace Presentation.Controllers
     //turn on later[Authorize] // Requires authentication for accessing this controller
     public class TicketsController : Controller
     {
-        private readonly TicketRepository ticketRepository;
-        private readonly FlightRepository flightRepository;
+        private readonly TicketRepository _ticketRepository;
+        private readonly FlightRepository _flightRepository;
 
         public TicketsController(TicketRepository ticketRepository, FlightRepository flightRepository)
         {
-            this.ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
-            this.flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
+            _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
+            _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
         }
 
         // Action to show a list of flights with retail prices
-        public IActionResult ShowFlights()
+        /*public IActionResult ShowFlights()
         {
             var today = DateTime.Now.Date;
 
             // Retrieve all flights
-            var flights = flightRepository.GetFlights().ToList();
+            var flights = _flightRepository.GetFlights().ToList();
 
             // Filter flights that are not fully booked and have a future departure date
             var filteredFlights = flights
-                .Where(f => f.DepartureDate > today && !ticketRepository.GetTickets(f.Id).Any())
+                .Where(f => f.DepartureDate > today && !_ticketRepository.GetTickets(f.Id).Any())
                 .ToList();
+
+            // Map the filtered flights to view models, make fully booked unclickable
+            var flightViewModels = filteredFlights.Select(flight => new FlightsViewModels
+            {
+                Id = flight.Id,
+                SeatRows = flight.SeatRows,
+                SeatColumns = flight.SeatColumns,
+                DepartureDate = flight.DepartureDate,
+                ArrivalDate = flight.ArrivalDate,
+                CountryFrom = flight.CountryFrom,
+                CountryTo = flight.CountryTo,
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate),
+                FullyBooked = flight.FullyBooked
+            }).ToList();
+
+            return View(flightViewModels);
+        }*/
+        public IActionResult ShowFlights()
+        {
+            var today = DateTime.Now.Date;
+
+            // Retrieve all flights with a future departure date
+            var flights = _flightRepository.GetFlights()
+                .Where(f => f.DepartureDate >= today)
+                .ToList();
+
+            // Filter flights that are not fully booked
+            var filteredFlights = flights
+            .Where(f => !f.FullyBooked)
+            .ToList();
 
             // Map the filtered flights to view models, make fully booked unclickable
             var flightViewModels = filteredFlights.Select(flight => new FlightsViewModels
@@ -179,14 +210,33 @@ namespace Presentation.Controllers
             return wholesalePrice * RetailPricePercentage;
         }
         [HttpGet]
-        public IActionResult Create() { 
-            CreateFlightViewModel viewModel = new CreateFlightViewModel();
+        public IActionResult CreateTicket() { 
+            CreateTicketViewModel viewModel = new CreateTicketViewModel(_flightRepository);
             return View(viewModel); 
         }
         [HttpPost]
-        public IActionResult Create(CreateFlightViewModel viewModel) { 
-            flightRepository.Addflight//basically redo this for the tickets
-            return View(viewModel); 
+        public IActionResult CreateTicket(CreateTicketViewModel viewModel) {
+            try
+            { 
+                _ticketRepository.Book(new Ticket()
+                {
+                SeatRow = viewModel.SeatRow,
+                SeatColumn = viewModel.SeatColumn,
+                FlightIdFK = viewModel.FlightIdFK,
+                Passport = viewModel.Passport,
+                PricePaid = viewModel.PricePaid,
+                Cancelled = viewModel.Cancelled,
+                });
+                TempData["message"] = "Product saved successfully";
+                //return View()incase it succeds to redirect
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "Product was not inserted successfully";
+                //return View(viewModel)incase it doesnt succed
+
+            }
+            return View(viewModel);//remove after adding other 2
         }
     }
 }

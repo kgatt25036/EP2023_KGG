@@ -23,7 +23,7 @@ namespace Domain.Models
         public Guid FlightIdFK { get; set; }
         public virtual Flight Flight { get; set; }
         public string Passport { get; set; }
-        public double PricePaid { get; set; }
+        public bool PricePaid { get; set; }
         public bool Cancelled { get; set; }
     }
 }
