@@ -27,5 +27,6 @@ namespace Domain.Models
         public string CountryTo { get; set; }
         public double WholesalePrice { get; set; }
         public double CommissionRate { get; set; }
+        public bool FullyBooked { get; set; }
     }
 }

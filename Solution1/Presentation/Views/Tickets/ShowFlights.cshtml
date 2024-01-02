@@ -36,6 +36,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.RetailPrice)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FullyBooked)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -66,10 +69,13 @@
             <td>
                 @Html.DisplayFor(modelItem => item.RetailPrice)
             </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullyBooked)
+                </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.Id })
             </td>
         </tr>
 }

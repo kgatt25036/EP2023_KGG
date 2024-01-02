@@ -166,13 +166,13 @@ namespace Presentation.Controllers
                 ArrivalDate = flight.ArrivalDate,
                 CountryFrom = flight.CountryFrom,
                 CountryTo = flight.CountryTo,
-                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate)
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate),
+                FullyBooked = flight.FullyBooked
             }).ToList();
 
             return View(flightViewModels);
         }
 
-        // Method to calculate retail price based on flight details (customize as needed)
         private double CalculateRetailPrice(double wholesalePrice, double commissionRate)
         {
             const double RetailPricePercentage = 1.2;

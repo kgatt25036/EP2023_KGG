@@ -16,5 +16,7 @@ namespace Presentation.Models.ViewModels
         public string CountryFrom { get; set; }
         public string CountryTo { get; set; }
         public double RetailPrice { get; set; }
+        public bool FullyBooked { get; set; }
+
     }
 }
