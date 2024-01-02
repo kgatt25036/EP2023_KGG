@@ -156,7 +156,7 @@ namespace Presentation.Controllers
                 .Where(f => f.DepartureDate > today && !ticketRepository.GetTickets(f.Id).Any())
                 .ToList();
 
-            // Map the filtered flights to view models
+            // Map the filtered flights to view models, make fully booked unclickable
             var flightViewModels = filteredFlights.Select(flight => new FlightsViewModels
             {
                 Id = flight.Id,
@@ -178,6 +178,15 @@ namespace Presentation.Controllers
             const double RetailPricePercentage = 1.2;
             return wholesalePrice * RetailPricePercentage;
         }
-
+        [HttpGet]
+        public IActionResult Create() { 
+            CreateFlightViewModel viewModel = new CreateFlightViewModel();
+            return View(viewModel); 
+        }
+        [HttpPost]
+        public IActionResult Create(CreateFlightViewModel viewModel) { 
+            flightRepository.Addflight//basically redo this for the tickets
+            return View(viewModel); 
+        }
     }
 }
