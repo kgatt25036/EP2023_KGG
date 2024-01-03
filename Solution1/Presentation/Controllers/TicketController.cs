@@ -197,8 +197,7 @@ namespace Presentation.Controllers
                 ArrivalDate = flight.ArrivalDate,
                 CountryFrom = flight.CountryFrom,
                 CountryTo = flight.CountryTo,
-                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate),
-                FullyBooked = flight.FullyBooked
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate)
             }).ToList();
 
             return View(flightViewModels);
@@ -214,6 +213,33 @@ namespace Presentation.Controllers
             CreateTicketViewModel viewModel = new CreateTicketViewModel(_flightRepository);
             return View(viewModel); 
         }
+        public IActionResult FlightDetails(Guid id)
+        {
+            var flight = _flightRepository.GetFlight(id);
+
+            if (flight == null)
+            {
+                // Handle invalid flight
+                return RedirectToAction("ShowFlights");
+            }
+
+            var detailedFlightViewModel = new DetailedFlightViewModel
+            {
+                Id = flight.Id,
+                SeatRows = flight.SeatRows,
+                SeatColumns = flight.SeatColumns,
+                DepartureDate = flight.DepartureDate,
+                ArrivalDate = flight.ArrivalDate,
+                CountryFrom = flight.CountryFrom,
+                CountryTo = flight.CountryTo,
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate),
+                FullyBooked = flight.FullyBooked,
+            };
+
+            return View(detailedFlightViewModel);
+        }
+
+
         [HttpPost]
         public IActionResult CreateTicket(CreateTicketViewModel viewModel) {
             try
