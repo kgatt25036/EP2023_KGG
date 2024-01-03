@@ -1,5 +1,6 @@
 ﻿using DataAccess.DataContext;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,10 @@ namespace DataAccess.Repositories
         {
             return !_airlineDbContext.Tickets
                 .Any(t => t.FlightIdFK == flightId && t.SeatRow == row && t.SeatColumn == column);
+        }
+        public List<Ticket> GetAllTickets()
+        {
+            return _airlineDbContext.Tickets.ToList();
         }
     }
 }

@@ -66,6 +66,20 @@
         </dd>
     </dl>
 </div>
-<p>
-    @Html.ActionLink("Back to List", "ShowFlights")
-</p>
+<div>
+    <p>
+        @Html.ActionLink("Back to List", "ShowFlights") |
+        @{
+            if (Model.FullyBooked)
+            {
+                <span style="color: gray;">Book this Flight</span>
+            }
+            else
+            {
+                @Html.ActionLink("Book this Flight", "CreateTicket", new { flightId = Model.Id })
+            }
+        }
+    </p>
+</div>
+
+
