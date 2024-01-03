@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.Sockets;
 
 namespace Presentation.Controllers
 {
@@ -164,5 +165,50 @@ namespace Presentation.Controllers
 
             return View(ticketViewModels);
         }
+        public IActionResult DetailedTickets(Guid id)
+        {
+            var ticketDetails = _ticketRepository.GetTicketById(id);
+            var viewModel = new DetailedTicketViewModel
+            {
+                Id = ticketDetails.Id,
+                SeatRow = ticketDetails.SeatRow,
+                SeatColumn = ticketDetails.SeatColumn,
+                FlightIdFK = ticketDetails.FlightIdFK,
+                Passport = ticketDetails.Passport,
+                PricePaid = ticketDetails.PricePaid,
+                Cancelled = ticketDetails.Cancelled,
+            };
+
+            return View(viewModel);
+        }
+        [HttpGet]
+        public IActionResult Delete(Guid id)
+        {
+            // Retrieve the ticket by id and display the confirmation page
+            var ticket = _ticketRepository.GetTicketById(id);
+            var viewModel = new DetailedTicketViewModel
+            {
+                Id = ticket.Id,
+                SeatRow = ticket.SeatRow,
+                SeatColumn = ticket.SeatColumn,
+                FlightIdFK = ticket.FlightIdFK,
+                Passport = ticket.Passport,
+                PricePaid = ticket.PricePaid,
+                Cancelled = ticket.Cancelled,
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteConfirmed(Guid id)
+        {
+            // Cancel the ticket (update its status)
+            _ticketRepository.CancelTicket(id);
+
+            // Redirect to the ShowAllTickets page after deletion
+            return RedirectToAction("ShowAllTickets");
+        }
+
     }
 }

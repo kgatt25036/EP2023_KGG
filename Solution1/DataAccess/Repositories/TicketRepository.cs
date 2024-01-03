@@ -33,18 +33,14 @@ namespace DataAccess.Repositories
         }
 
         // Cancel a booked ticket
-        public void Cancel(int ticketId)
+        public void CancelTicket(Guid ticketId)
         {
-            var ticket = _airlineDbContext.Tickets.Find(ticketId);
+            var ticket = _airlineDbContext.Tickets.FirstOrDefault(t => t.Id == ticketId);
 
             if (ticket != null)
             {
                 ticket.Cancelled = true;
                 _airlineDbContext.SaveChanges();
-            }
-            else
-            {
-                throw new InvalidOperationException("Ticket not found.");
             }
         }
 
@@ -64,7 +60,7 @@ namespace DataAccess.Repositories
         }
 
         // Check if a seat is available for booking
-        private bool IsSeatAvailable(Guid flightId, string row, string column)
+        private bool IsSeatAvailable(Guid flightId, string row, string column)//make sure ticket isnt cancelled
         {
             return !_airlineDbContext.Tickets
                 .Any(t => t.FlightIdFK == flightId && t.SeatRow == row && t.SeatColumn == column);
@@ -72,6 +68,10 @@ namespace DataAccess.Repositories
         public List<Ticket> GetAllTickets()
         {
             return _airlineDbContext.Tickets.ToList();
+        }
+        public Ticket GetTicketById(Guid ticketId)
+        {
+            return _airlineDbContext.Tickets.FirstOrDefault(t => t.Id == ticketId);
         }
     }
 }

@@ -1,0 +1,60 @@
+﻿@model Presentation.Models.ViewModels.DetailedTicketViewModel
+
+@{
+    ViewData["Title"] = "DetailedTickets";
+}
+
+<h1>DetailedTickets</h1>
+
+<div>
+    <h4>DetailedTicketViewModel</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SeatRow)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SeatRow)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.SeatColumn)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.SeatColumn)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FlightIdFK)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FlightIdFK)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Passport)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Passport)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PricePaid)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PricePaid)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Cancelled)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Cancelled)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    <a asp-action="Index">Back to List</a>
+</div>
