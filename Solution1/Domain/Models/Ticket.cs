@@ -22,6 +22,7 @@ namespace Domain.Models
         [ForeignKey("Flight")]
         public Guid FlightIdFK { get; set; }
         public virtual Flight Flight { get; set; }
+        [Required]
         public string Passport { get; set; }
         public bool PricePaid { get; set; }
         public bool Cancelled { get; set; }

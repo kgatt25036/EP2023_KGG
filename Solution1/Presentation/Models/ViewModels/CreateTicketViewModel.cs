@@ -18,7 +18,9 @@ namespace Presentation.Models.ViewModels
         [Required]
         public string SeatColumn { get; set; }
         //public IQueryable<Flight> Flights { get; set; }
+        [Required]
         public Guid FlightIdFK { get; set; }
+        [Required]
         public string Passport { get; set; }
         public bool PricePaid { get; set; }
         public bool Cancelled { get; set; }

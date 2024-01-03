@@ -21,11 +21,18 @@ namespace Domain.Models
 
         [Required]
         public string SeatColumns { get; set; }
+        [Required]
+
         public DateTime DepartureDate { get; set; }
+        [Required]
         public DateTime ArrivalDate { get; set; }
+        [Required]
         public string CountryFrom { get; set; }
+        [Required]
         public string CountryTo { get; set; }
+        [Required]
         public double WholesalePrice { get; set; }
+        [Required]
         public double CommissionRate { get; set; }
         public bool FullyBooked { get; set; }
     }
