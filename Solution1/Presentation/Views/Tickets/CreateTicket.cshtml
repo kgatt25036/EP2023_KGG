@@ -50,19 +50,9 @@
                     <input class="form-check-input" asp-for="Cancelled" /> @Html.DisplayNameFor(model => model.Cancelled)
                 </label>
             </div>
-            
-            @for (var i = 1; i <= Model.Flight.SeatRows; i++)
-            {
-                <div class="row">
-                    @for (var j = 1; j <= Model.Flight.SeatColumns; j++)
-                    {
-                        <div class="col">
-                            <button>@i,@j</button>@*add onclick here to update row and column*@
-                        </div>
-                    }
-                    <br />
-                </div>
-            }
+
+        <div id="seat-picker"></div>
+
 
             <div class="form-group">
                 <input id="submitButton" type="submit" value="Create" class="btn btn-primary" @(!Model.PricePaid ? "disabled" : "") />
@@ -77,59 +67,69 @@
     </form>
 </div>
 
-<script>
-    function getSeatingPlan(flightId) {
-        $.get("/Tickets/GetSeatingPlan?flightId=" + flightId, function (data) {
-            // Assuming data is an object with SeatRows and SeatColumns properties
-            var seatingPlanHtml = "Seating Plan: " + data.SeatRows + " rows x " + data.SeatColumns + " columns";
-            $("#seatingPlan").html(seatingPlanHtml);
+@section scripts {
+    <script>
+        const seatPicker = document.getElementById('seat-picker');
+        const selectedSeatDisplay = document.getElementById('selected-seat');
+        const selectedRowInput = document.getElementById('selected-row');
+        const selectedColumnInput = document.getElementById('selected-column');
+        const selectedSeats = new Set();
 
-            // Generate buttons for each seat
-            generateSeatButtons(data.SeatRows, data.SeatColumns);
-        });
-    }
-
-    function generateSeatButtons(rows, columns) {
-        var seatingButtons = "";
-
-        for (var i = 1; i <= rows; i++) {
-            for (var j = 1; j <= columns; j++) {
-                // Create a button for each seat
-                seatingButtons += "<button type='button' class='btn btn-secondary seat-button' data-row='" + i + "' data-column='" + j + "'>" + i + "-" + j + "</button> ";
+        // Function to create seats dynamically based on flight data
+        function createSeats(rows, columns) {
+            for (let row = 1; row <= rows; row++) {
+                for (let col = 1; col <= columns; col++) {
+                    const seat = document.createElement('button');
+                    seat.classList.add('btn', 'btn-secondary', 'seat');
+                    seat.dataset.row = row;
+                    seat.dataset.column = col;
+                    seat.innerText = `${row}-${col}`;
+                    seat.addEventListener('click', toggleSeat);
+                    seatPicker.appendChild(seat);
+                }
             }
-            seatingButtons += "<br />";
         }
 
-        $("#seatingPlan").append(seatingButtons);
+        // Function to toggle seat selection
+        function toggleSeat() {
+            const seat = this;
+            const seatId = `${seat.dataset.row}-${seat.dataset.column}`;
 
-        // Attach click event to seat buttons
-        $(".seat-button").click(function () {
-            var row = $(this).data("row");
-            var column = $(this).data("column");
+            // Clear previous selections
+            clearSelectedSeats();
 
-            // Update SeatRow and SeatColumn fields in the form
-            $("#SeatRow").val(row);
-            $("#SeatColumn").val(column);
+            // Add the selected seat to the set
+            selectedSeats.add(seatId);
+
+            // Update display and input fields
+            selectedSeatDisplay.innerText = `Selected Seat: ${seatId}`;
+            selectedRowInput.value = seat.dataset.row;
+            selectedColumnInput.value = seat.dataset.column;
 
             // Optionally, you can visually highlight the selected seat
-            $(".seat-button").removeClass("selected-seat");
-            $(this).addClass("selected-seat");
-        });
-    }
-
-    $(document).ready(function () {
-        // Call the method with the initial flight ID (replace with actual flight ID)
-        getSeatingPlan("FlightIdFK");
-
-        $('#PricePaid').change(function () {
-            updateButtonState();
-        });
-
-        updateButtonState();
-
-        function updateButtonState() {
-            var pricePaid = $('#PricePaid').is(':checked');
-            $('#submitButton').prop('disabled', !pricePaid);
+            seat.classList.add('selected-seat');
         }
-    });
-</script>
+
+        // Function to clear selected seats
+        function clearSelectedSeats() {
+            selectedSeats.forEach((seatId) => {
+                const [row, col] = seatId.split('-');
+                const seat = document.querySelector(`.seat[data-row="${row}"][data-column="${col}"]`);
+                if (seat) {
+                    seat.classList.remove('selected-seat');
+                }
+            });
+
+            // Clear the set and reset display and input fields
+            selectedSeats.clear();
+            selectedSeatDisplay.innerText = 'No seat selected';
+            selectedRowInput.value = '';
+            selectedColumnInput.value = '';
+        }
+
+        // Initialize the seating plan (replace these values with your actual flight data)
+        createSeats(@Model.Flight.SeatRows, @Model.Flight.SeatColumns);
+    </script>
+}
+
+

@@ -100,17 +100,26 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateTicket(CreateTicketViewModel viewModel) {
+        public IActionResult CreateTicket(CreateTicketViewModel viewModel)
+        {
             try
-            { 
+            {
+                // Ensure that viewModel.Flight is not null before accessing its properties
+                if (viewModel.Flight == null)
+                {
+                    // Handle the case where Flight is not properly set
+                    TempData["error"] = "Flight information is missing.";
+                    return View(viewModel);
+                }
+
                 _ticketRepository.Book(new Ticket()
                 {
-                SeatRow = viewModel.SeatRow,
-                SeatColumn = viewModel.SeatColumn,
-                FlightIdFK = viewModel.FlightIdFK,
-                Passport = viewModel.Passport,
-                PricePaid = viewModel.PricePaid,
-                Cancelled = viewModel.Cancelled,
+                    SeatRow = viewModel.SeatRow,
+                    SeatColumn = viewModel.SeatColumn,
+                    FlightIdFK = viewModel.FlightIdFK,
+                    Passport = viewModel.Passport,
+                    PricePaid = viewModel.PricePaid,
+                    Cancelled = viewModel.Cancelled,
                 });
                 TempData["message"] = "Product saved successfully";
                 return RedirectToAction("ShowAllTickets");
@@ -119,10 +128,9 @@ namespace Presentation.Controllers
             {
                 TempData["error"] = "Product was not inserted successfully";
                 return View(viewModel);
-
             }
-            //return View(viewModel);//remove after adding other 2
         }
+    
         public IActionResult ShowAllTickets()
         {
             var allTickets = _ticketRepository.GetAllTickets();
