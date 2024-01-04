@@ -10,18 +10,20 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Createseats">
+        <form asp-action="Createseats" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input type="hidden" name="SeatChosen"/>
+                <input type="hidden" id="seatHidden" name="selectedseats" />
+
                 @for(int col = 0; col<Model.MaxColumns; col++)
                 {
                     for (int row = 0; row < Model.MaxRows; row++)
                     {
-                        <input type="image" src="/image/seat.png"alt="Submit" style="width:30px;height:30px;" value="@Model.SeatList.SingleOrDefault(x=>x.Row==row&&x.Column==col).RowCol"
-                        onclick="SetChosenSeat()"/>
+                        <input type="image" src="/images/seat.png" alt="Submit" style="width:40px;height:40px;" name="selectedseats" value="@Model.SeatList.SingleOrDefault(x=>x.Row==row&&x.Column==col).RowCol" />
                     }
+                    <br/>
                 }
+                @*put the rest of code here*@
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -33,10 +35,14 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-<script>
-    functino SetChosenSeat(){
-    var myHidden = document.getElementById("seatHidden");
-    myHidden.setAttribute("value",)
+<script type="text/javascript">
+    function SetChosenSeat(event) {
+        var clickedValue = event.target.getAttribute('data-value');
+        var myHidden = document.getElementById("seatHidden");
+        myHidden.value = clickedValue;
+
+        // Submit the form
+        document.forms[0].submit(); // Assumes the form is the first form on the page
     }
 </script>
 

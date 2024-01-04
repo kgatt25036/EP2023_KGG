@@ -3,8 +3,8 @@
     public class DetailedFlightViewModel
     {
         public Guid Id { get; set; }
-        public string SeatRows { get; set; }
-        public string SeatColumns { get; set; }
+        public int SeatRows { get; set; }
+        public int SeatColumns { get; set; }
         public DateTime DepartureDate { get; set; }
         public DateTime ArrivalDate { get; set; }
         public string CountryFrom { get; set; }

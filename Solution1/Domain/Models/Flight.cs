@@ -17,10 +17,10 @@ namespace Domain.Models
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        public string SeatRows { get; set; }
+        public int SeatRows { get; set; }
 
         [Required]
-        public string SeatColumns { get; set; }
+        public int SeatColumns { get; set; }
         [Required]
 
         public DateTime DepartureDate { get; set; }

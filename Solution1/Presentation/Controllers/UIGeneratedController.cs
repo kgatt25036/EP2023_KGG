@@ -9,20 +9,20 @@ namespace Presentation.Controllers
             public int Column { get; set; }
             public int Row { get; set; }
             public string RowCol { get { 
-                return Row +" "+Column;
+                return Row +","+Column;
                 } }
         }
     public class SeatingPlanViewModel
     {
         public List<Seat> SeatList { get; set; }
-        public string SeatChosen { get; set; }
+        public string[] SeatChosen { get; set; }
 
         public int MaxRows { get; set; }
         public int MaxColumns { get; set; }
     }
     public class UIGeneratedController : Controller
     {
-
+        [HttpGet]
         public IActionResult Createseats()
         {
             int maxrows = 10;
@@ -36,6 +36,11 @@ namespace Presentation.Controllers
                 }
             }
             return View(new SeatingPlanViewModel() { SeatList = seats, MaxColumns = maxcolumns, MaxRows = maxrows});
+        }
+        [HttpPost]
+        public IActionResult Createseats(SeatingPlanViewModel model, string[] selectedseats)
+        {
+            return View(model);
         }
     }
 }

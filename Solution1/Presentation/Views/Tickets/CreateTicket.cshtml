@@ -34,6 +34,12 @@
                 <input asp-for="Passport" class="form-control" />
                 <span asp-validation-for="Passport" class="text-danger"></span>
             </div>
+            <th>
+                Price to be paid:
+            </th>
+        <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.price)
+        </dd>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="PricePaid" /> @Html.DisplayNameFor(model => model.PricePaid)
@@ -44,6 +50,20 @@
                     <input class="form-check-input" asp-for="Cancelled" /> @Html.DisplayNameFor(model => model.Cancelled)
                 </label>
             </div>
+            
+            @for (var i = 1; i <= Model.Flight.SeatRows; i++)
+            {
+                <div class="row">
+                    @for (var j = 1; j <= Model.Flight.SeatColumns; j++)
+                    {
+                        <div class="col">
+                            <button>@i,@j</button>@*add onclick here to update row and column*@
+                        </div>
+                    }
+                    <br />
+                </div>
+            }
+
             <div class="form-group">
                 <input id="submitButton" type="submit" value="Create" class="btn btn-primary" @(!Model.PricePaid ? "disabled" : "") />
             </div>
@@ -57,13 +77,56 @@
     </form>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
+    function getSeatingPlan(flightId) {
+        $.get("/Tickets/GetSeatingPlan?flightId=" + flightId, function (data) {
+            // Assuming data is an object with SeatRows and SeatColumns properties
+            var seatingPlanHtml = "Seating Plan: " + data.SeatRows + " rows x " + data.SeatColumns + " columns";
+            $("#seatingPlan").html(seatingPlanHtml);
+
+            // Generate buttons for each seat
+            generateSeatButtons(data.SeatRows, data.SeatColumns);
+        });
+    }
+
+    function generateSeatButtons(rows, columns) {
+        var seatingButtons = "";
+
+        for (var i = 1; i <= rows; i++) {
+            for (var j = 1; j <= columns; j++) {
+                // Create a button for each seat
+                seatingButtons += "<button type='button' class='btn btn-secondary seat-button' data-row='" + i + "' data-column='" + j + "'>" + i + "-" + j + "</button> ";
+            }
+            seatingButtons += "<br />";
+        }
+
+        $("#seatingPlan").append(seatingButtons);
+
+        // Attach click event to seat buttons
+        $(".seat-button").click(function () {
+            var row = $(this).data("row");
+            var column = $(this).data("column");
+
+            // Update SeatRow and SeatColumn fields in the form
+            $("#SeatRow").val(row);
+            $("#SeatColumn").val(column);
+
+            // Optionally, you can visually highlight the selected seat
+            $(".seat-button").removeClass("selected-seat");
+            $(this).addClass("selected-seat");
+        });
+    }
+
     $(document).ready(function () {
+        // Call the method with the initial flight ID (replace with actual flight ID)
+        getSeatingPlan("FlightIdFK");
+
         $('#PricePaid').change(function () {
             updateButtonState();
         });
+
         updateButtonState();
+
         function updateButtonState() {
             var pricePaid = $('#PricePaid').is(':checked');
             $('#submitButton').prop('disabled', !pricePaid);

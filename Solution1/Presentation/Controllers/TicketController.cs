@@ -19,36 +19,6 @@ namespace Presentation.Controllers
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
             _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
         }
-
-        // Action to show a list of flights with retail prices
-        /*public IActionResult ShowFlights()
-        {
-            var today = DateTime.Now.Date;
-
-            // Retrieve all flights
-            var flights = _flightRepository.GetFlights().ToList();
-
-            // Filter flights that are not fully booked and have a future departure date
-            var filteredFlights = flights
-                .Where(f => f.DepartureDate > today && !_ticketRepository.GetTickets(f.Id).Any())
-                .ToList();
-
-            // Map the filtered flights to view models, make fully booked unclickable
-            var flightViewModels = filteredFlights.Select(flight => new FlightsViewModels
-            {
-                Id = flight.Id,
-                SeatRows = flight.SeatRows,
-                SeatColumns = flight.SeatColumns,
-                DepartureDate = flight.DepartureDate,
-                ArrivalDate = flight.ArrivalDate,
-                CountryFrom = flight.CountryFrom,
-                CountryTo = flight.CountryTo,
-                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate),
-                FullyBooked = flight.FullyBooked
-            }).ToList();
-
-            return View(flightViewModels);
-        }*/
         public IActionResult ShowFlights()
         {
             var today = DateTime.Now.Date;
@@ -110,15 +80,20 @@ namespace Presentation.Controllers
             return View(detailedFlightViewModel);
         }
         [HttpGet]
-        /*public IActionResult CreateTicket() { 
-            CreateTicketViewModel viewModel = new CreateTicketViewModel(_flightRepository);
-            return View(viewModel); 
-        }*/
         public IActionResult CreateTicket(Guid flightId)
         {
-            var viewModel = new CreateTicketViewModel(_flightRepository)
+            var flight = _flightRepository.GetFlight(flightId);
+
+            if (flight == null)
             {
-                FlightIdFK = flightId
+                // Handle invalid flight
+                return RedirectToAction("ShowFlights");
+            }
+            var viewModel = new CreateTicketViewModel()
+            {
+                FlightIdFK = flightId,
+                Flight = flight,
+                price = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate)
             };
 
             return View(viewModel);
@@ -209,6 +184,25 @@ namespace Presentation.Controllers
             // Redirect to the ShowAllTickets page after deletion
             return RedirectToAction("ShowAllTickets");
         }
+        public IActionResult GetSeatingPlan(Guid flightId)
+        {
+            // Retrieve flight details by ID
+            var flight = _flightRepository.GetFlight(flightId);
 
+            if (flight == null)
+            {
+                // Handle invalid flight ID
+                return BadRequest("Invalid flight ID");
+            }
+            
+            // Return a JSON object with seating plan details
+            var seatingPlan = new
+            {
+                SeatRows = flight.SeatRows,
+                SeatColumns = flight.SeatColumns
+            };
+
+            return Json(seatingPlan);
+        }
     }
 }

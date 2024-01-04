@@ -7,10 +7,10 @@ namespace Presentation.Models.ViewModels
         public Guid Id { get; set; } //= Guid.NewGuid();
 
         [Required]
-        public string SeatRows { get; set; }
+        public int SeatRows { get; set; }
 
         [Required]
-        public string SeatColumns { get; set; }
+        public int SeatColumns { get; set; }
         public DateTime DepartureDate { get; set; }
         public DateTime ArrivalDate { get; set; }
         public string CountryFrom { get; set; }
