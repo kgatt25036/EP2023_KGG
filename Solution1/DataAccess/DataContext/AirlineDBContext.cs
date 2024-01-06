@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.DataContext
 {
-    public class AirlineDbContext : IdentityDbContext<IdentityUser>
+    public class AirlineDbContext : IdentityDbContext<CustomUser>
     {
         public AirlineDbContext(DbContextOptions<AirlineDbContext> options)
           : base(options)
