@@ -5,29 +5,81 @@ using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
 using DataAccess.Repositories;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Domain.Interfaces;
 
 namespace Presentation.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly FlightRepository _flightRepository;
-        private readonly TicketRepository _ticketRepository;
+        private readonly ITickets _ticketRepository;
 
-        public AdminController(FlightRepository flightRepository, TicketRepository ticketRepository)
+        public AdminController(FlightRepository flightRepository, ITickets ticketRepository)
         {
             _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
         }
 
-        public IActionResult SelectFlights()
+        public IActionResult ShowFlights()
         {
+            try { 
             // Retrieve all available flights
             var flights = _flightRepository.GetFlights().ToList();
+            var flightViewModels = flights.Select(flight => new FlightsViewModels
+            {
+                Id = flight.Id,
+                SeatRows = flight.SeatRows,
+                SeatColumns = flight.SeatColumns,
+                DepartureDate = flight.DepartureDate,
+                ArrivalDate = flight.ArrivalDate,
+                CountryFrom = flight.CountryFrom,
+                CountryTo = flight.CountryTo,
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate)
+            }).ToList();
 
-            return View(flights);
+            return View(flightViewModels);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
         }
-        public IActionResult GetTickets()
+        private double CalculateRetailPrice(double wholesalePrice, double commissionRate)
         {
+            const double RetailPricePercentage = 1.2;
+            return wholesalePrice * RetailPricePercentage;
+        }
+        public IActionResult FlightDetails(Guid id)
+        {
+            var flight = _flightRepository.GetFlight(id);
+
+            if (flight == null)
+            {
+                // Handle invalid flight
+                return RedirectToAction("ShowFlights");
+            }
+
+            var detailedFlightViewModel = new DetailedFlightViewModel
+            {
+                Id = flight.Id,
+                SeatRows = flight.SeatRows,
+                SeatColumns = flight.SeatColumns,
+                DepartureDate = flight.DepartureDate,
+                ArrivalDate = flight.ArrivalDate,
+                CountryFrom = flight.CountryFrom,
+                CountryTo = flight.CountryTo,
+                RetailPrice = CalculateRetailPrice(flight.WholesalePrice, flight.CommissionRate),
+                FullyBooked = flight.FullyBooked,
+            };
+
+            return View(detailedFlightViewModel);
+        }
+        public IActionResult ShowAllTickets()
+        {
+            try { 
             // Retrieve all tickets
             var allTickets = _ticketRepository.GetAllTickets();
 
@@ -45,20 +97,18 @@ namespace Presentation.Controllers
 
             // Pass the list of tickets to the view
             return View(ticketViewModels);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
         }
 
 
-        public IActionResult ViewTicketDetails(Guid ticketId)
+        public IActionResult DetailedTickets(Guid id)
         {
-            // Retrieve ticket details by ID
-            var ticketDetails = _ticketRepository.GetTicketById(ticketId);
-
-            if (ticketDetails == null)
-            {
-                // Handle invalid ticket ID
-                return RedirectToAction("SelectFlights");
-            }
-
+            var ticketDetails = _ticketRepository.GetTicketById(id);
             var viewModel = new DetailedTicketViewModel
             {
                 Id = ticketDetails.Id,

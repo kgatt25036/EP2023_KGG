@@ -1,5 +1,6 @@
 using DataAccess.DataContext;
 using DataAccess.Repositories;
+using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,9 @@ builder.Services.AddDefaultIdentity<CustomUser>(options => options.SignIn.Requir
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped(typeof(FlightRepository));
-builder.Services.AddScoped(typeof(TicketRepository));
+//builder.Services.AddScoped(typeof(TicketRepository));
+string pathToJsonFile = builder.Environment.ContentRootPath + "Data\\products.json";
+builder.Services.AddScoped<ITickets, TicketsJsonRepository>(x=> new TicketsJsonRepository(pathToJsonFile));
 
 var app = builder.Build();
 

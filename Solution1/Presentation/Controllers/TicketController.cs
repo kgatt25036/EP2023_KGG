@@ -1,8 +1,10 @@
 ﻿using DataAccess.Repositories;
+using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net.Sockets;
 using System.Security.Claims;
@@ -12,10 +14,10 @@ namespace Presentation.Controllers
     //turn on later[Authorize] // Requires authentication for accessing this controller
     public class TicketsController : Controller
     {
-        private readonly TicketRepository _ticketRepository;
+        private readonly ITickets _ticketRepository;
         private readonly FlightRepository _flightRepository;
 
-        public TicketsController(TicketRepository ticketRepository, FlightRepository flightRepository)
+        public TicketsController(ITickets ticketRepository, FlightRepository flightRepository)
         {
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
             _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
@@ -147,6 +149,7 @@ namespace Presentation.Controllers
         [Authorize]
         public IActionResult ShowAllTickets()//only showing one ticket
         {
+            try { 
             // Get the current user's passport number
             var currentUserPassport = User.FindFirstValue("Passportno");
 
@@ -168,6 +171,12 @@ namespace Presentation.Controllers
             });//.ToList();
 
             return View(ticketViewModels);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
         }
         public IActionResult DetailedTickets(Guid id)
         {

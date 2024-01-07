@@ -1,4 +1,5 @@
 ﻿using DataAccess.DataContext;
+using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
-    public class TicketRepository
+    public class TicketRepository: ITickets
     {
         private readonly AirlineDbContext _airlineDbContext;
 
@@ -44,7 +45,7 @@ namespace DataAccess.Repositories
             }
         }
 
-        // Get all tickets for a specific flight
+        /* Get all tickets for a specific flight
         public IQueryable<Ticket> GetTickets(Guid flightId)
         {
             return _airlineDbContext.Tickets
@@ -57,10 +58,10 @@ namespace DataAccess.Repositories
             return _airlineDbContext.Tickets
                 .Where(t => t.Passport == passport)
                 .AsQueryable();
-        }
+        }*/
 
         // Check if a seat is available for booking
-        private bool IsSeatAvailable(Guid flightId, string row, string column)//make sure ticket isnt cancelled
+        public bool IsSeatAvailable(Guid flightId, string row, string column)//make sure ticket isnt cancelled
         {
             return !_airlineDbContext.Tickets
                 .Any(t => t.FlightIdFK == flightId && t.SeatRow == row && t.SeatColumn == column);
