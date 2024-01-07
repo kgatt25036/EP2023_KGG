@@ -11,6 +11,8 @@ namespace Presentation.Models.ViewModels
         public string SeatColumn { get; set; }
         public Guid FlightIdFK { get; set; }
         public string Passport { get; set; }
+        public string PassportImg { get; set; }
+
         public bool PricePaid { get; set; }
         public bool Cancelled { get; set; }
     }

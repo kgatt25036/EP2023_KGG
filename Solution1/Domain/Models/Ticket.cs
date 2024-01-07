@@ -24,6 +24,7 @@ namespace Domain.Models
         public virtual Flight Flight { get; set; }
         [Required]
         public string Passport { get; set; }
+        public string PassportImg { get; set; }
         public bool PricePaid { get; set; }
         public bool Cancelled { get; set; }
     }

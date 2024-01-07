@@ -40,6 +40,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Passport)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PassportImg)
+        </dt>
+        <dd class="col-sm-10">
+            <img src="@Model.PassportImg" style="width: 200px;height: 200px;" />
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PricePaid)
         </dt>

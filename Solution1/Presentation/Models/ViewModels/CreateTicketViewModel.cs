@@ -20,6 +20,7 @@ namespace Presentation.Models.ViewModels
         public Guid FlightIdFK { get; set; }
         [Required]
         public string Passport { get; set; }
+        public IFormFile PassImgFile { get; set; }
         public double price { get; set; }
         public bool PricePaid { get; set; }
         public bool Cancelled { get; set; }

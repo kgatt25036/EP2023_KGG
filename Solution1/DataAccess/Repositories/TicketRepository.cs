@@ -73,5 +73,15 @@ namespace DataAccess.Repositories
         {
             return _airlineDbContext.Tickets.FirstOrDefault(t => t.Id == ticketId);
         }
+        public IEnumerable<Ticket> GetTicketsByPassport(string passport)
+        {
+            // Assuming you have a method to get all tickets
+            var allTickets = GetAllTickets();
+
+            // Filter tickets based on the given passport number
+            var userTickets = allTickets.Where(ticket => ticket.Passport == passport);
+
+            return userTickets;
+        }
     }
 }

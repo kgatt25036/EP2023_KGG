@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net.Sockets;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -80,6 +81,7 @@ namespace Presentation.Controllers
             return View(detailedFlightViewModel);
         }
         [HttpGet]
+        //[authorize]
         public IActionResult CreateTicket(Guid flightId)
         {
             var flight = _flightRepository.GetFlight(flightId);
@@ -100,8 +102,10 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateTicket(CreateTicketViewModel viewModel)
+        //[authorize]
+        public IActionResult CreateTicket(CreateTicketViewModel viewModel, [FromServices] IWebHostEnvironment host)
         {
+            string relativepath = "";
             try
             {
                 // Ensure that viewModel.Flight is not null before accessing its properties
@@ -109,18 +113,28 @@ namespace Presentation.Controllers
                 {
                     // Handle the case where Flight is not properly set
                     TempData["error"] = "Flight information is missing.";
-                    return View(viewModel);
+                    //return View(viewModel);
                 }
 
-                _ticketRepository.Book(new Ticket()
+                string filename = Guid.NewGuid() + System.IO.Path.GetExtension(viewModel.PassImgFile.FileName);
+                string absolutePath = host.WebRootPath+@"\images\"+filename;
+                relativepath = @"/images/" + filename;
+                using (FileStream fs = new FileStream(absolutePath, FileMode.CreateNew))
                 {
-                    SeatRow = viewModel.SeatRow,
-                    SeatColumn = viewModel.SeatColumn,
-                    FlightIdFK = viewModel.FlightIdFK,
-                    Passport = viewModel.Passport,
-                    PricePaid = viewModel.PricePaid,
-                    Cancelled = viewModel.Cancelled,
-                });
+                    viewModel.PassImgFile.CopyTo(fs);
+                    fs.Flush();
+                    fs.Close();
+                }
+                    _ticketRepository.Book(new Ticket()
+                    {
+                        SeatRow = viewModel.SeatRow,
+                        SeatColumn = viewModel.SeatColumn,
+                        FlightIdFK = viewModel.FlightIdFK,
+                        Passport = viewModel.Passport,
+                        PricePaid = viewModel.PricePaid,
+                        Cancelled = viewModel.Cancelled,
+                        PassportImg = relativepath
+                    });
                 TempData["message"] = "Product saved successfully";
                 return RedirectToAction("ShowAllTickets");
             }
@@ -130,12 +144,19 @@ namespace Presentation.Controllers
                 return View(viewModel);
             }
         }
-    
-        public IActionResult ShowAllTickets()
+        [Authorize]
+        public IActionResult ShowAllTickets()//only showing one ticket
         {
-            var allTickets = _ticketRepository.GetAllTickets();
+            // Get the current user's passport number
+            var currentUserPassport = User.FindFirstValue("Passportno");
 
-            var ticketViewModels = allTickets.Select(ticket => new TicketViewModel
+
+
+            // Retrieve tickets for the current user based on passport number
+            var userTickets = _ticketRepository.GetTicketsByPassport(currentUserPassport);
+
+            // Map tickets to view models
+            var ticketViewModels = userTickets.Select(ticket => new TicketViewModel
             {
                 Id = ticket.Id,
                 SeatRow = ticket.SeatRow,
@@ -144,7 +165,7 @@ namespace Presentation.Controllers
                 Passport = ticket.Passport,
                 PricePaid = ticket.PricePaid,
                 Cancelled = ticket.Cancelled,
-            }).ToList();
+            });//.ToList();
 
             return View(ticketViewModels);
         }
@@ -158,6 +179,7 @@ namespace Presentation.Controllers
                 SeatColumn = ticketDetails.SeatColumn,
                 FlightIdFK = ticketDetails.FlightIdFK,
                 Passport = ticketDetails.Passport,
+                PassportImg = ticketDetails.PassportImg,
                 PricePaid = ticketDetails.PricePaid,
                 Cancelled = ticketDetails.Cancelled,
             };
