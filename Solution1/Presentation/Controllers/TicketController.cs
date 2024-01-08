@@ -2,6 +2,7 @@
 using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
 using System.Collections.Concurrent;
@@ -11,14 +12,15 @@ using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
-    //turn on later[Authorize] // Requires authentication for accessing this controller
     public class TicketsController : Controller
     {
-        private readonly ITickets _ticketRepository;
+        //private readonly ITickets _ticketRepository;
+        private readonly TicketRepository _ticketRepository;
         private readonly FlightRepository _flightRepository;
-
-        public TicketsController(ITickets ticketRepository, FlightRepository flightRepository)
+        private readonly UserManager<CustomUser> _userManager;
+        public TicketsController(TicketRepository ticketRepository, FlightRepository flightRepository, UserManager<CustomUser> userManager )
         {
+            _userManager = userManager;
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
             _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
         }
@@ -110,13 +112,6 @@ namespace Presentation.Controllers
             string relativepath = "";
             try
             {
-                // Ensure that viewModel.Flight is not null before accessing its properties
-                if (viewModel.Flight == null)
-                {
-                    // Handle the case where Flight is not properly set
-                    TempData["error"] = "Flight information is missing.";
-                    //return View(viewModel);
-                }
 
                 string filename = Guid.NewGuid() + System.IO.Path.GetExtension(viewModel.PassImgFile.FileName);
                 string absolutePath = host.WebRootPath+@"\images\"+filename;
@@ -147,16 +142,17 @@ namespace Presentation.Controllers
             }
         }
         [Authorize]
-        public IActionResult ShowAllTickets()//only showing one ticket
+        public async Task<IActionResult> ShowAllTickets()//only showing one ticket
         {
-            try { 
-            // Get the current user's passport number
-            var currentUserPassport = User.FindFirstValue("Passportno");
+            try {
+
+                // Get the current user's passport number
+                var currentUser = await _userManager.FindByEmailAsync(User.Identity.Name);
 
 
 
             // Retrieve tickets for the current user based on passport number
-            var userTickets = _ticketRepository.GetTicketsByPassport(currentUserPassport);
+            var userTickets = _ticketRepository.GetTicketsByPassport(currentUser.Passportno).ToList();
 
             // Map tickets to view models
             var ticketViewModels = userTickets.Select(ticket => new TicketViewModel
@@ -168,7 +164,7 @@ namespace Presentation.Controllers
                 Passport = ticket.Passport,
                 PricePaid = ticket.PricePaid,
                 Cancelled = ticket.Cancelled,
-            });//.ToList();
+            }).ToList();
 
             return View(ticketViewModels);
             }

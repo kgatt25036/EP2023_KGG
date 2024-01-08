@@ -4,7 +4,7 @@
     ViewData["Title"] = "CreateTicket";
 }
 
-<h1>CreateTicket</h1>
+<h1>Create Ticket</h1>
 
 <h4>CreateTicketViewModel</h4>
 <hr />
@@ -12,17 +12,21 @@
     <div class="col-md-4">
         <form asp-action="CreateTicket" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <label for="selected-seat">Selected Seat:</label>
+                <span id="selected-seat"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="SeatRow" class="control-label">Seat Row</label>
-                <input asp-for="SeatRow" class="form-control" />
+                <input asp-for="SeatRow" class="form-control" readonly />
                 <span asp-validation-for="SeatRow" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SeatColumn" class="control-label">Seat Column</label>
-                <input asp-for="SeatColumn" class="form-control" />
+                <input asp-for="SeatColumn" class="form-control" readonly />
                 <span asp-validation-for="SeatColumn" class="text-danger"></span>
             </div>
-
+            <div id="seat-picker"></div>
             <div class="form-group">
                 <label asp-for="FlightIdFK" class="control-label">Flight ID</label>
                 <input asp-for="FlightIdFK" class="form-control" readonly />
@@ -48,17 +52,12 @@
                     <input class="form-check-input" asp-for="PricePaid" /> @Html.DisplayNameFor(model => model.PricePaid)
                 </label>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Cancelled" /> @Html.DisplayNameFor(model => model.Cancelled)
-                </label>
-            </div>
 
-        @*<div id="seat-picker"></div>*@
+        
 
 
             <div class="form-group">
-                <input id="submitButton" type="submit" value="Create" class="btn btn-primary" @*@(!Model.PricePaid ? "disabled" : "")*@ />
+                <input id="submitButton" type="submit" value="Create" class="btn btn-primary" @(!Model.PricePaid ? "disabled" : "") />
             </div>
         </form>
     </div>
@@ -72,17 +71,24 @@
 
 @section scripts {
     <script>
-        /*const seatPicker = document.getElementById('seat-picker');
+        /*$('button').click(function (event)(){
+            event.prefentDefault();
+        }*/
+        const seatPicker = document.getElementById('seat-picker');
         const selectedSeatDisplay = document.getElementById('selected-seat');
-        const selectedRowInput = document.getElementById('selected-row');
-        const selectedColumnInput = document.getElementById('selected-column');
+        const selectedRowInput = document.getElementById('SeatRow');
+        const selectedColumnInput = document.getElementById('SeatColumn');
         const selectedSeats = new Set();
+
+        // Initialize the seating plan (replace these values with your actual flight data)
+        createSeats(@Model.Flight.SeatRows, @Model.Flight.SeatColumns);
 
         // Function to create seats dynamically based on flight data
         function createSeats(rows, columns) {
             for (let row = 1; row <= rows; row++) {
                 for (let col = 1; col <= columns; col++) {
                     const seat = document.createElement('button');
+                    seat.id = `_${row}_${col}`;
                     seat.classList.add('btn', 'btn-secondary', 'seat');
                     seat.dataset.row = row;
                     seat.dataset.column = col;
@@ -94,23 +100,39 @@
         }
 
         // Function to toggle seat selection
-        function toggleSeat() {
+        function toggleSeat(event) {
+            event.preventDefault();
+            debugger;
             const seat = this;
-            const seatId = `${seat.dataset.row}-${seat.dataset.column}`;
+            const seatId = seat.id;//`${seat.dataset.row}-${seat.dataset.column}`;
+            if (selectedSeats.size>0) {
+                // Clear previous selections
+                clearSelectedSeats();
 
-            // Clear previous selections
-            clearSelectedSeats();
+                // Add the selected seat to the set
+                selectedSeats.add(seatId);
 
-            // Add the selected seat to the set
-            selectedSeats.add(seatId);
+                // Update display and input fields
+                selectedSeatDisplay.value = `Selected Seat: ${seatId}`;
+                selectedRowInput.value = seat.dataset.row;
+                selectedColumnInput.value = seat.dataset.column;
 
-            // Update display and input fields
-            selectedSeatDisplay.innerText = `Selected Seat: ${seatId}`;
-            selectedRowInput.value = seat.dataset.row;
-            selectedColumnInput.value = seat.dataset.column;
+                // Optionally, you can visually highlight the selected seat
+                seat.classList.add('selected-seat');
+            }
+            else{
+                // Add the selected seat to the set
+                selectedSeats.add(seatId);
 
-            // Optionally, you can visually highlight the selected seat
-            seat.classList.add('selected-seat');
+                // Update display and input fields
+                selectedSeatDisplay.value = `Selected Seat: ${seatId}`;
+                selectedRowInput.value = seat.dataset.row;
+                selectedColumnInput.value = seat.dataset.column;
+
+                // Optionally, you can visually highlight the selected seat
+                seat.classList.add('selected-seat');
+            }
+
         }
 
         // Function to clear selected seats
@@ -122,16 +144,17 @@
                     seat.classList.remove('selected-seat');
                 }
             });
-
-            // Clear the set and reset display and input fields
-            selectedSeats.clear();
-            selectedSeatDisplay.innerText = 'No seat selected';
-            selectedRowInput.value = '';
-            selectedColumnInput.value = '';
         }
-
-        // Initialize the seating plan (replace these values with your actual flight data)
-        createSeats(Model.Flight.SeatRows, Model.Flight.SeatColumns);*/
+        $(document).ready(function () {
+            $('#PricePaid').change(function () {
+                updateButtonState();
+            });
+            updateButtonState();
+            function updateButtonState() {
+                var pricePaid = $('#PricePaid').is(':checked');
+                $('#submitButton').prop('disabled', !pricePaid);
+            }
+        });
     </script>
 }
 

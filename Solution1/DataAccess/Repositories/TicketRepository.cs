@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
-    public class TicketRepository: ITickets
+    //public class TicketRepository: ITickets
+    public class TicketRepository 
     {
         private readonly AirlineDbContext _airlineDbContext;
 

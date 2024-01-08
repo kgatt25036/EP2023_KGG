@@ -50,7 +50,7 @@ namespace DataAccess.Repositories
                 try { 
                 using (StreamReader sr = File.OpenText(_path))
                 {
-                    string allText = sr.ReadToEnd();
+                    allText = sr.ReadToEnd();
                     sr.Close();
                 }
                 if (string.IsNullOrEmpty(allText))
@@ -61,7 +61,7 @@ namespace DataAccess.Repositories
                     return myTickets;
                 }
                 catch(Exception ex)
-                {
+                {   
                     throw new Exception("Error while opening the file");
                 }
             }
@@ -70,17 +70,20 @@ namespace DataAccess.Repositories
 
         public Ticket GetTicketById(Guid ticketId)
         {
-            throw new NotImplementedException();
+            var list = GetAllTickets();
+            return list.FirstOrDefault(t => t.Id == ticketId);
         }
 
         public IEnumerable<Ticket> GetTicketsByPassport(string passport)
         {
-            throw new NotImplementedException();
+            var allTickets = GetAllTickets();
+            return allTickets.Where(ticket => ticket.Passport == passport);
         }
 
         public bool IsSeatAvailable(Guid flightId, string row, string column)
         {
-            throw new NotImplementedException();
+            var allTickets = GetAllTickets();
+            return !allTickets.Any(t => t.FlightIdFK == flightId && t.SeatRow == row && t.SeatColumn == column);
         }
     }
 }

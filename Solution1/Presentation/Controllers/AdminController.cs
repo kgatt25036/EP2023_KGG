@@ -14,9 +14,11 @@ namespace Presentation.Controllers
     public class AdminController : Controller
     {
         private readonly FlightRepository _flightRepository;
-        private readonly ITickets _ticketRepository;
+        //private readonly ITickets _ticketRepository;
+        private readonly TicketRepository _ticketRepository;
 
-        public AdminController(FlightRepository flightRepository, ITickets ticketRepository)
+
+        public AdminController(FlightRepository flightRepository, TicketRepository ticketRepository)
         {
             _flightRepository = flightRepository ?? throw new ArgumentNullException(nameof(flightRepository));
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
